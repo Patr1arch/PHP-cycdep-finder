@@ -1,0 +1,19 @@
+{
+    "name": "patriarch/php-cycdep-finder",
+    "description": "Package to find cyclic dependencies in classes, files, directories and packages in PHP projects",
+    "type": "project",
+    "require": {
+        "nikic/php-parser": "^5.0"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Patriarch\\PhpCycdepFinder\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Patr1arch"
+        }
+    ]
+}
