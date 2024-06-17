@@ -32,6 +32,7 @@ class PhpDependencyTreeBuilder
             $this->buildDependenciesForUses($ast);
             $this->buildDependenciesForGroupUses($ast);
             $this->buildDependenciesForImplicitUse($ast);
+            $this->buildDependenciesForIncludes($ast, $fileName);
 
             echo var_dump($this->dependencyTree->getAdjacencyList());
         }
@@ -82,8 +83,6 @@ class PhpDependencyTreeBuilder
 
     private function buildDependenciesForImplicitUse(array $ast): void
     {
-        $dumper = new NodeDumper();
-        echo $dumper->dump($ast) . PHP_EOL;
         $namespaces = $this->nodeFinder->findInstanceOf($ast, Node\Stmt\Namespace_::class);
         foreach ($namespaces as $namespace) {
             $classes = $this->nodeFinder->findInstanceOf($namespace, Node\Stmt\Class_::class);
@@ -100,6 +99,27 @@ class PhpDependencyTreeBuilder
                     }
                 }
             }
+        }
+    }
+
+    private function buildDependenciesForIncludes(array $ast, string $fileName): void
+    {
+        $includes = $this->nodeFinder->findInstanceOf($ast, Node\Expr\Include_::class);
+        echo (new NodeDumper())->dump($ast);
+        $parts = explode('/', $fileName);
+        array_pop($parts);
+        $oneLevelUpPath = implode('/', $parts);
+        foreach ($includes as $include) {
+            $scalars = $this->nodeFinder->findInstanceOf($include->expr, Node\Scalar\String_::class);
+            $fullName = array_reduce(
+                $scalars,
+                function (string $carry, Node\Scalar\String_ $item) {
+                    $carry .= $item->value;
+                    return $carry;
+                },
+                $oneLevelUpPath . '/'
+            );
+            $this->dependencyTree->addDependency($fileName, $fullName);
         }
     }
 }

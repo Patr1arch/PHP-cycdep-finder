@@ -25,6 +25,11 @@ class BinTest extends TestCase
         $this->assertTrue($this->requireBinFile('Fixtures/ProjectWithDependecies/ImplicitUse'));
     }
 
+    public function testFindRequiresAndIncludes()
+    {
+        $this->assertTrue($this->requireBinFile('Fixtures/ProjectWithDependecies/RequiresAndIncludes'));
+    }
+
     private function requireBinFile(string $path): bool
     {
         $argv[1] = self::__TEST_DIRECTORY__ . $path;
