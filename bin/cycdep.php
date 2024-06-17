@@ -7,13 +7,14 @@ use Patriarch\PhpCycdepFinder\Core\Finder\CyclicDependenciesFinder;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-
 try {
     $dependencyTree = (new PhpDependencyTreeBuilder(parseArgv($argv)))->buildDependencyTree();
-    echo (new CyclicDependenciesFinder($dependencyTree))->find() . PHP_EOL;
+    $finder = new CyclicDependenciesFinder($dependencyTree);
+    echo $finder->getMessages() . PHP_EOL;
+    return $finder->hasCyclicDependencies();
 } catch (Error $error) {
     echo "Parse error: {$error->getMessage()}\n";
-    return;
+    return 255;
 }
 
 /**

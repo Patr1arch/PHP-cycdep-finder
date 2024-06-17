@@ -10,23 +10,30 @@ class CyclicDependenciesFinder
 {
     /** @var array<string> */
     private array $messages;
+    private bool $hasCyclicDependencies = false;
 
     public function __construct(private DependencyTree $dependencyTree)
     {
+        $this->find();
     }
 
-    /**
-     * @return string
-     */
-    public function find(): string
+    public function hasCyclicDependencies(): bool
+    {
+        return $this->hasCyclicDependencies;
+    }
+
+    public function getMessages(): string
+    {
+        return empty($this->messages) ? $this->handleNoDependencies() : implode("\n", $this->messages);
+    }
+
+    private function find(): void
     {
         foreach ($this->dependencyTree->getAdjacencyList() as $adjacencyColorNode) {
             if ($adjacencyColorNode->color === Color::WHITE) {
                 $this->doDFS($adjacencyColorNode);
             }
         }
-
-        return empty($this->messages) ? $this->handleNoDependencies() : implode("\n", $this->messages);
     }
 
     private function doDFS(DependencyNode $node): void
@@ -34,7 +41,6 @@ class CyclicDependenciesFinder
         $node->color = Color::GREY;
 
         foreach ($node->dependencies as $dependencyName) {
-            echo $dependencyName . PHP_EOL;
             if (($dependencyNode = $this->dependencyTree->getDependencyNode($dependencyName)) !== null) {
                 if ($dependencyNode->color === Color::GREY) {
                     $this->handleCyclicDependency($node, $dependencyNode);
@@ -49,6 +55,7 @@ class CyclicDependenciesFinder
 
     private function handleCyclicDependency(DependencyNode $fromNode, DependencyNode $toNode): void
     {
+        $this->hasCyclicDependencies = true;
         $this->messages[] = "Find cyclic dependency start from $fromNode->name to $toNode->name";
     }
 
