@@ -1,0 +1,6 @@
+{
+  "name": "patriarch/b",
+  "require": {
+    "patriarch/c": "*"
+  }
+}

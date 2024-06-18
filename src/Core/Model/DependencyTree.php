@@ -17,6 +17,11 @@ class DependencyTree
         $node->addDependency($to);
     }
 
+    public function mergeTree(DependencyTree $anotherTree): void
+    {
+        $this->adjacencyList = array_merge($this->adjacencyList, $anotherTree->getAdjacencyList());
+    }
+
     public function getAdjacencyList(): array
     {
         return $this->adjacencyList;

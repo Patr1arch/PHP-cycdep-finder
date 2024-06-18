@@ -30,6 +30,11 @@ class BinTest extends TestCase
         $this->assertTrue($this->requireBinFile('Fixtures/ProjectWithDependecies/RequiresAndIncludes'));
     }
 
+    public function testFindComposerRequires()
+    {
+        $this->assertTrue($this->requireBinFile('Fixtures/ProjectWithDependecies/ComposerConfigs'));
+    }
+
     private function requireBinFile(string $path): bool
     {
         $argv[1] = self::__TEST_DIRECTORY__ . $path;

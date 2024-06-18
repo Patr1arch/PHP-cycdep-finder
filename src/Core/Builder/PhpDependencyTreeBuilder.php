@@ -8,7 +8,7 @@ use PhpParser\NodeDumper;
 use PhpParser\NodeFinder;
 use PhpParser\ParserFactory;
 
-class PhpDependencyTreeBuilder
+class PhpDependencyTreeBuilder implements BuilderInterface
 {
     private DependencyTree $dependencyTree;
     private NodeFinder $nodeFinder;

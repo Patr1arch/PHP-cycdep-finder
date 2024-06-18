@@ -12,7 +12,7 @@ class CyclicDependenciesFinder
     private array $messages;
     private bool $hasCyclicDependencies = false;
 
-    public function __construct(private DependencyTree $dependencyTree)
+    public function __construct(private readonly DependencyTree $dependencyTree)
     {
         $this->find();
     }

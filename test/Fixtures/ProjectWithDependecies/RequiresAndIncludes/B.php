@@ -1,3 +1,3 @@
 <?php
 
-require_once 'A' . '.php';
+require_once 'a' . '.php';

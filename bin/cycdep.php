@@ -2,13 +2,13 @@
 
 <?php
 
-use Patriarch\PhpCycdepFinder\Core\Builder\PhpDependencyTreeBuilder;
+use Patriarch\PhpCycdepFinder\Core\Builder\DependencyTreeBuilder;
 use Patriarch\PhpCycdepFinder\Core\Finder\CyclicDependenciesFinder;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
 try {
-    $dependencyTree = (new PhpDependencyTreeBuilder(parseArgv($argv)))->buildDependencyTree();
+    $dependencyTree = (new DependencyTreeBuilder(parseArgv($argv)))->buildDependencyTree();
     $finder = new CyclicDependenciesFinder($dependencyTree);
     echo $finder->getMessages() . PHP_EOL;
     return $finder->hasCyclicDependencies();
