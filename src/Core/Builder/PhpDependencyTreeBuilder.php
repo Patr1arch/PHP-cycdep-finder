@@ -3,6 +3,7 @@
 namespace Patriarch\PhpCycdepFinder\Core\Builder;
 
 use Patriarch\PhpCycdepFinder\Core\Model\DependencyTree;
+use Patriarch\PhpCycdepFinder\Core\Model\VerbosityLevel;
 use PhpParser\Node;
 use PhpParser\NodeDumper;
 use PhpParser\NodeFinder;
@@ -12,6 +13,9 @@ class PhpDependencyTreeBuilder implements BuilderInterface
 {
     private DependencyTree $dependencyTree;
     private NodeFinder $nodeFinder;
+
+    /** @var array<VerbosityLevel, array<string>> */
+    private array $messages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
 
     /**
      * @param array<string> $fileNames
@@ -28,16 +32,23 @@ class PhpDependencyTreeBuilder implements BuilderInterface
             $parser = (new ParserFactory())->createForHostVersion();
 
             $ast = $parser->parse(file_get_contents($fileName));
+            $this->messages[VerbosityLevel::LEVEL_TWO->value][] = (new NodeDumper())->dump($ast);
 
             $this->buildDependenciesForUses($ast);
             $this->buildDependenciesForGroupUses($ast);
             $this->buildDependenciesForImplicitUse($ast);
             $this->buildDependenciesForIncludes($ast, $fileName);
 
-            echo var_dump($this->dependencyTree->getAdjacencyList());
+            $this->messages[VerbosityLevel::LEVEL_TWO->value][] = print_r($this->dependencyTree->getAdjacencyList(), true);
         }
 
         return $this->dependencyTree;
+    }
+
+    /** @return  array<VerbosityLevel, array<string>> */
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 
     /**
@@ -105,7 +116,6 @@ class PhpDependencyTreeBuilder implements BuilderInterface
     private function buildDependenciesForIncludes(array $ast, string $fileName): void
     {
         $includes = $this->nodeFinder->findInstanceOf($ast, Node\Expr\Include_::class);
-        echo (new NodeDumper())->dump($ast);
         $parts = explode('/', $fileName);
         array_pop($parts);
         $oneLevelUpPath = implode('/', $parts);

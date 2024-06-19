@@ -2,13 +2,16 @@
 
 namespace Patriarch\PhpCycdepFinder\Core\Builder;
 
-use Patriarch\PhpCycdepFinder\Core\Builder\BuilderInterface;
 use Patriarch\PhpCycdepFinder\Core\Model\DependencyTree;
+use Patriarch\PhpCycdepFinder\Core\Model\VerbosityLevel;
 
 class ComposerDependencyTreeBuilder implements BuilderInterface
 {
     private const REQUIRE_IDENTIFIER = 'require';
     private const NAME_IDENTIFIER = 'name';
+
+    /** @var array<VerbosityLevel, array<string>> */
+    private array $messages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
 
     private DependencyTree $dependencyTree;
 
@@ -22,10 +25,19 @@ class ComposerDependencyTreeBuilder implements BuilderInterface
         foreach ($this->fileNames as $fileName) {
             $composerJsonArray = json_decode(file_get_contents($fileName), true);
 
+            $this->messages[VerbosityLevel::LEVEL_TWO->value][] = print_r($composerJsonArray, true);
+
             $this->buildDependenciesForRequires($composerJsonArray);
         }
 
         return $this->dependencyTree;
+    }
+
+
+    /** @return  array<VerbosityLevel, array<string>> */
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 
     private function buildDependenciesForRequires(array $composerJsonArray): void

@@ -2,8 +2,8 @@
 
 namespace Patriarch\PhpCycdepFinder\Core\Builder;
 
-use Patriarch\PhpCycdepFinder\Core\Builder\BuilderInterface;
 use Patriarch\PhpCycdepFinder\Core\Model\DependencyTree;
+use Patriarch\PhpCycdepFinder\Core\Model\VerbosityLevel;
 
 class DependencyTreeBuilder implements BuilderInterface
 {
@@ -16,6 +16,9 @@ class DependencyTreeBuilder implements BuilderInterface
 
     /** @var array<BuilderInterface> */
     private array $builders = [];
+
+    /** @var array<VerbosityLevel, array<string>> */
+    private array $messages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
 
     private DependencyTree $dependencyTree;
 
@@ -37,9 +40,20 @@ class DependencyTreeBuilder implements BuilderInterface
     {
         foreach ($this->builders as $builder) {
             $this->dependencyTree->mergeTree($builder->buildDependencyTree());
+
+            $this->messages[VerbosityLevel::LEVEL_ONE->value] =
+                array_merge($this->messages[VerbosityLevel::LEVEL_ONE->value], $builder->getMessages()[VerbosityLevel::LEVEL_ONE->value]);
+            $this->messages[VerbosityLevel::LEVEL_TWO->value] =
+                array_merge($this->messages[VerbosityLevel::LEVEL_TWO->value], $builder->getMessages()[VerbosityLevel::LEVEL_TWO->value]);
         }
 
         return $this->dependencyTree;
+    }
+
+    /** @return array<VerbosityLevel, array<string>> */
+    public function getMessages(): array
+    {
+        return $this->messages;
     }
 
     private function addPhpFileNameIfNeeded(string $fileName): void

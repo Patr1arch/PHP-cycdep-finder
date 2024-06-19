@@ -5,11 +5,13 @@ namespace Patriarch\PhpCycdepFinder\Core\Finder;
 use Patriarch\PhpCycdepFinder\Core\Model\Color;
 use Patriarch\PhpCycdepFinder\Core\Model\DependencyNode;
 use Patriarch\PhpCycdepFinder\Core\Model\DependencyTree;
+use Patriarch\PhpCycdepFinder\Core\Model\VerbosityLevel;
 
 class CyclicDependenciesFinder
 {
-    /** @var array<string> */
-    private array $messages;
+    /** @var array<VerbosityLevel, array<string>> */
+    private array $messages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
+
     private bool $hasCyclicDependencies = false;
 
     public function __construct(private readonly DependencyTree $dependencyTree)
@@ -22,9 +24,10 @@ class CyclicDependenciesFinder
         return $this->hasCyclicDependencies;
     }
 
-    public function getMessages(): string
+    /** @return array<VerbosityLevel, array<string>> */
+    public function getMessages(): array
     {
-        return empty($this->messages) ? $this->handleNoDependencies() : implode("\n", $this->messages);
+        return empty($this->messages) ? $this->handleNoDependencies() : $this->messages;
     }
 
     private function find(): void
@@ -56,11 +59,12 @@ class CyclicDependenciesFinder
     private function handleCyclicDependency(DependencyNode $fromNode, DependencyNode $toNode): void
     {
         $this->hasCyclicDependencies = true;
-        $this->messages[] = "Find cyclic dependency start from $fromNode->name to $toNode->name";
+        $this->messages[VerbosityLevel::LEVEL_ONE->value][] =
+            "Find cyclic dependency start from $fromNode->name to $toNode->name";
     }
 
-    private function handleNoDependencies(): string
+    private function handleNoDependencies(): array
     {
-        return "It's no dependencies in this files";
+        return [VerbosityLevel::LEVEL_ONE->value => ["It's no dependencies in this files"]];
     }
 }
