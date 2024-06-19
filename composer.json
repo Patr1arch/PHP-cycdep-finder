@@ -3,8 +3,9 @@
     "description": "Package to find cyclic dependencies in classes, files, directories and packages in PHP projects",
     "type": "project",
     "require": {
-        "nikic/php-parser": "^5.0",
-        "php": ">=8.2"
+        "php": ">=7.1",
+        "nikic/php-parser": "^4.19",
+        "ext-json": "^1.5"
     },
     "license": "MIT",
     "autoload": {
@@ -23,6 +24,6 @@
         }
     ],
     "require-dev": {
-        "phpunit/phpunit": "^11.1"
+        "phpunit/phpunit": "^7.5"
     }
 }

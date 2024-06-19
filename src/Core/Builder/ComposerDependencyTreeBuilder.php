@@ -10,13 +10,19 @@ class ComposerDependencyTreeBuilder implements BuilderInterface
     private const REQUIRE_IDENTIFIER = 'require';
     private const NAME_IDENTIFIER = 'name';
 
-    /** @var array<VerbosityLevel, array<string>> */
-    private array $messages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
+    /** @var array<int, array<string>> */
+    private $messages = [VerbosityLevel::LEVEL_ONE => [], VerbosityLevel::LEVEL_TWO => []];
 
-    private DependencyTree $dependencyTree;
+    /** @var DependencyTree */
+    private $dependencyTree;
 
-    public function __construct(private readonly array $fileNames)
+    /** @var array<string> */
+    private $fileNames;
+
+    /** @param array<string> $fileNames */
+    public function __construct(array $fileNames)
     {
+        $this->fileNames = $fileNames;
         $this->dependencyTree = new DependencyTree();
     }
 
@@ -25,7 +31,7 @@ class ComposerDependencyTreeBuilder implements BuilderInterface
         foreach ($this->fileNames as $fileName) {
             $composerJsonArray = json_decode(file_get_contents($fileName), true);
 
-            $this->messages[VerbosityLevel::LEVEL_TWO->value][] = print_r($composerJsonArray, true);
+            $this->messages[VerbosityLevel::LEVEL_TWO][] = print_r($composerJsonArray, true);
 
             $this->buildDependenciesForRequires($composerJsonArray);
         }

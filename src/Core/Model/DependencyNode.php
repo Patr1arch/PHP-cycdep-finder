@@ -4,16 +4,27 @@ namespace Patriarch\PhpCycdepFinder\Core\Model;
 
 class DependencyNode
 {
+    /** @var string */
+    public $name;
+
+    /** @var array<string> */
+    public $dependencies = [];
+
+    public $color = Color::WHITE;
+
     /**
      * @param string $name
      * @param array<string> $dependencies
-     * @param Color $color
+     * @param int $color
      */
     public function __construct(
-        public readonly string $name,
-        public array $dependencies = [],
-        public Color $color = Color::WHITE
+        string $name,
+        array $dependencies = [],
+        int $color = Color::WHITE
     ) {
+        $this->name = $name;
+        $this->dependencies = $dependencies;
+        $this->color = $color;
     }
 
     public function addDependency(string $to): void

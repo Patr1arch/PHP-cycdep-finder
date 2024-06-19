@@ -11,16 +11,20 @@ class DependencyTreeBuilder implements BuilderInterface
     private const COMPOSER_FILE_NAME = 'composer.json';
     private const VENDOR_DIR = 'vendor';
 
-    private array $phpFileNames = [];
-    private array $composerFileNames = [];
+    /** @var array<string> */
+    private $phpFileNames = [];
+
+    /** @var array<string> */
+    private $composerFileNames = [];
 
     /** @var array<BuilderInterface> */
-    private array $builders = [];
+    private $builders = [];
 
-    /** @var array<VerbosityLevel, array<string>> */
-    private array $messages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
+    /** @var array<int, array<string>> */
+    private $messages = [VerbosityLevel::LEVEL_ONE => [], VerbosityLevel::LEVEL_TWO => []];
 
-    private DependencyTree $dependencyTree;
+    /** @var DependencyTree  */
+    private $dependencyTree;
 
     /** @param array<string> $fileNames */
     public function __construct(array $fileNames)
@@ -41,16 +45,16 @@ class DependencyTreeBuilder implements BuilderInterface
         foreach ($this->builders as $builder) {
             $this->dependencyTree->mergeTree($builder->buildDependencyTree());
 
-            $this->messages[VerbosityLevel::LEVEL_ONE->value] =
-                array_merge($this->messages[VerbosityLevel::LEVEL_ONE->value], $builder->getMessages()[VerbosityLevel::LEVEL_ONE->value]);
-            $this->messages[VerbosityLevel::LEVEL_TWO->value] =
-                array_merge($this->messages[VerbosityLevel::LEVEL_TWO->value], $builder->getMessages()[VerbosityLevel::LEVEL_TWO->value]);
+            $this->messages[VerbosityLevel::LEVEL_ONE] =
+                array_merge($this->messages[VerbosityLevel::LEVEL_ONE], $builder->getMessages()[VerbosityLevel::LEVEL_ONE]);
+            $this->messages[VerbosityLevel::LEVEL_TWO] =
+                array_merge($this->messages[VerbosityLevel::LEVEL_TWO], $builder->getMessages()[VerbosityLevel::LEVEL_TWO]);
         }
 
         return $this->dependencyTree;
     }
 
-    /** @return array<VerbosityLevel, array<string>> */
+    /** @return array<int, array<string>> */
     public function getMessages(): array
     {
         return $this->messages;
@@ -61,7 +65,7 @@ class DependencyTreeBuilder implements BuilderInterface
         $paths = explode('/', $fileName);
         if (
             !in_array(self::VENDOR_DIR, $paths) &&
-            str_contains(end($paths), self::PHP_EXTENSION)
+            strpos(end($paths), self::PHP_EXTENSION) !== false
         ) {
             $this->phpFileNames[] = $fileName;
         }
@@ -72,7 +76,7 @@ class DependencyTreeBuilder implements BuilderInterface
         $paths = explode('/', $fileName);
         if (
             in_array(self::VENDOR_DIR, $paths) &&
-            str_contains(end($paths), self::COMPOSER_FILE_NAME)
+            strpos(end($paths), self::COMPOSER_FILE_NAME) !== false
         ) {
             $this->composerFileNames[] = $fileName;
         }

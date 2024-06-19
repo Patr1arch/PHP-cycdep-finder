@@ -5,7 +5,7 @@ namespace Patriarch\PhpCycdepFinder\Core\Model;
 class DependencyTree
 {
     /** @var array<DependencyNode> */
-    private array $adjacencyList = [];
+    private $adjacencyList = [];
 
     public function addDependency(string $from, string $to): void
     {

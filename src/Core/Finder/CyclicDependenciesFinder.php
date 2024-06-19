@@ -10,13 +10,19 @@ use Patriarch\PhpCycdepFinder\Core\Model\VerbosityLevel;
 class CyclicDependenciesFinder
 {
     /** @var array<VerbosityLevel, array<string>> */
-    private array $messages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
-    private array $dependencyStack = [];
+    private $messages = [VerbosityLevel::LEVEL_ONE => [], VerbosityLevel::LEVEL_TWO => []];
 
-    private bool $hasCyclicDependencies = false;
+    /** @var array<string> */
+    private $dependencyStack = [];
 
-    public function __construct(private readonly DependencyTree $dependencyTree)
+    private $hasCyclicDependencies = false;
+
+    /** @var DependencyTree */
+    private $dependencyTree;
+
+    public function __construct(DependencyTree $dependencyTree)
     {
+        $this->dependencyTree = $dependencyTree;
         $this->find();
     }
 
@@ -29,10 +35,10 @@ class CyclicDependenciesFinder
     public function getMessages(): array
     {
         if ($this->hasCyclicDependencies) {
-            array_unshift($this->messages[VerbosityLevel::LEVEL_ONE->value], "Find cyclic dependencies!");
+            array_unshift($this->messages[VerbosityLevel::LEVEL_ONE], "Find cyclic dependencies!");
             return $this->messages;
         }
-        return [VerbosityLevel::LEVEL_ONE->value => ["It's no dependencies in this files"]];
+        return [VerbosityLevel::LEVEL_ONE => ["It's no dependencies in this files"]];
     }
 
     private function find(): void
@@ -66,7 +72,7 @@ class CyclicDependenciesFinder
     private function handleCyclicDependency(DependencyNode $fromNode, DependencyNode $toNode): void
     {
         $this->hasCyclicDependencies = true;
-        $this->messages[VerbosityLevel::LEVEL_ONE->value][] =
+        $this->messages[VerbosityLevel::LEVEL_ONE][] =
             implode(' -> ', $this->dependencyStack) . " -> $toNode->name!";
     }
 }

@@ -2,9 +2,9 @@
 
 namespace Patriarch\PhpCycdepFinder\Core\Model;
 
-enum Color
+class Color
 {
-    case WHITE;
-    case GREY;
-    case BLACK;
+    public const WHITE = 0;
+    public const GREY = 1;
+    public const BLACK = 2;
 }

@@ -21,9 +21,9 @@ try {
 
     return $finder->hasCyclicDependencies();
 } catch (Throwable $error) {
-    $errorMessages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
-    $errorMessages[VerbosityLevel::LEVEL_ONE->value][] = "Parse error: {$error->getMessage()}\n";
-    $errorMessages[VerbosityLevel::LEVEL_TWO->value][] = print_r($error->getTrace(), true);
+    $errorMessages = [VerbosityLevel::LEVEL_ONE => [], VerbosityLevel::LEVEL_TWO => []];
+    $errorMessages[VerbosityLevel::LEVEL_ONE][] = "Parse error: {$error->getMessage()}\n";
+    $errorMessages[VerbosityLevel::LEVEL_TWO][] = print_r($error->getTrace(), true);
     printMessages($errorMessages, $verbosityLevel ?? VerbosityLevel::LEVEL_NONE);
 
     return 255;
@@ -52,7 +52,7 @@ function parseArgv(array $argv): array
             }
         } elseif (is_file($arg)) {
             $fileNames[] = $arg;
-        } elseif (str_starts_with($arg, '-')) {
+        } elseif (strpos($arg, '-') === 0) {
             $options[] = $arg;
         }
     }
@@ -60,7 +60,7 @@ function parseArgv(array $argv): array
     return ['options' => $options, 'file_names' => array_unique($fileNames)];
 }
 
-function getVerbosityLevel(array $options): VerbosityLevel
+function getVerbosityLevel(array $options): int
 {
     foreach ($options as $option) {
         $optionName = preg_replace('/-/', '', $option);
@@ -75,17 +75,17 @@ function getVerbosityLevel(array $options): VerbosityLevel
 }
 
 
-/** @param<VerbosityLevel, array<string>> $messages */
-function printMessages(array $messages, VerbosityLevel $verbosityLevel): void
+/** @param<int, array<string>> $messages */
+function printMessages(array $messages, int $verbosityLevel): void
 {
-    switch ($verbosityLevel->value) {
-        case VerbosityLevel::LEVEL_TWO->value:
-            if (!empty($messages[VerbosityLevel::LEVEL_TWO->value])) {
-                echo implode("\n", $messages[VerbosityLevel::LEVEL_TWO->value]) . PHP_EOL;
+    switch ($verbosityLevel) {
+        case VerbosityLevel::LEVEL_TWO:
+            if (!empty($messages[VerbosityLevel::LEVEL_TWO])) {
+                echo implode("\n", $messages[VerbosityLevel::LEVEL_TWO]) . PHP_EOL;
             }
-        case VerbosityLevel::LEVEL_ONE->value:
-            if (!empty($messages[VerbosityLevel::LEVEL_ONE->value])) {
-                echo implode("\n", $messages[VerbosityLevel::LEVEL_ONE->value]) . PHP_EOL;
+        case VerbosityLevel::LEVEL_ONE:
+            if (!empty($messages[VerbosityLevel::LEVEL_ONE])) {
+                echo implode("\n", $messages[VerbosityLevel::LEVEL_ONE]) . PHP_EOL;
             }
             break;
         default:
