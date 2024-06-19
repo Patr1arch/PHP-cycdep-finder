@@ -11,6 +11,7 @@ class CyclicDependenciesFinder
 {
     /** @var array<VerbosityLevel, array<string>> */
     private array $messages = [VerbosityLevel::LEVEL_ONE->value => [], VerbosityLevel::LEVEL_TWO->value => []];
+    private array $dependencyStack = [];
 
     private bool $hasCyclicDependencies = false;
 
@@ -27,7 +28,11 @@ class CyclicDependenciesFinder
     /** @return array<VerbosityLevel, array<string>> */
     public function getMessages(): array
     {
-        return empty($this->hasCyclicDependencies) ? $this->handleNoDependencies() : $this->messages;
+        if ($this->hasCyclicDependencies) {
+            array_unshift($this->messages[VerbosityLevel::LEVEL_ONE->value], "Find cyclic dependencies!");
+            return $this->messages;
+        }
+        return [VerbosityLevel::LEVEL_ONE->value => ["It's no dependencies in this files"]];
     }
 
     private function find(): void
@@ -42,6 +47,7 @@ class CyclicDependenciesFinder
     private function doDFS(DependencyNode $node): void
     {
         $node->color = Color::GREY;
+        array_push($this->dependencyStack, $node->name);
 
         foreach ($node->dependencies as $dependencyName) {
             if (($dependencyNode = $this->dependencyTree->getDependencyNode($dependencyName)) !== null) {
@@ -54,17 +60,13 @@ class CyclicDependenciesFinder
         }
 
         $node->color = Color::BLACK;
+        array_pop($this->dependencyStack);
     }
 
     private function handleCyclicDependency(DependencyNode $fromNode, DependencyNode $toNode): void
     {
         $this->hasCyclicDependencies = true;
         $this->messages[VerbosityLevel::LEVEL_ONE->value][] =
-            "Find cyclic dependency start from $fromNode->name to $toNode->name";
-    }
-
-    private function handleNoDependencies(): array
-    {
-        return [VerbosityLevel::LEVEL_ONE->value => ["It's no dependencies in this files"]];
+            implode(' -> ', $this->dependencyStack) . " -> $toNode->name!";
     }
 }

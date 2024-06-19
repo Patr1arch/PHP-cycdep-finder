@@ -81,11 +81,11 @@ function printMessages(array $messages, VerbosityLevel $verbosityLevel): void
     switch ($verbosityLevel->value) {
         case VerbosityLevel::LEVEL_TWO->value:
             if (!empty($messages[VerbosityLevel::LEVEL_TWO->value])) {
-                echo implode("\n", $messages[VerbosityLevel::LEVEL_TWO->value]);
+                echo implode("\n", $messages[VerbosityLevel::LEVEL_TWO->value]) . PHP_EOL;
             }
         case VerbosityLevel::LEVEL_ONE->value:
             if (!empty($messages[VerbosityLevel::LEVEL_ONE->value])) {
-                echo implode("\n", $messages[VerbosityLevel::LEVEL_ONE->value]);
+                echo implode("\n", $messages[VerbosityLevel::LEVEL_ONE->value]) . PHP_EOL;
             }
             break;
         default:
