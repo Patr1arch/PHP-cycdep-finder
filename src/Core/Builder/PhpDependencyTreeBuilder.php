@@ -36,7 +36,8 @@ class PhpDependencyTreeBuilder implements BuilderInterface
 
             $this->buildDependenciesForUses($ast);
             $this->buildDependenciesForGroupUses($ast);
-            $this->buildDependenciesForImplicitUse($ast);
+            $this->buildDependenciesForImplicitStaticCallUse($ast);
+            $this->buildDependenciesForImplicitCtorUse($ast);
             $this->buildDependenciesForIncludes($ast, $fileName);
 
             $this->messages[VerbosityLevel::LEVEL_TWO->value][] = print_r($this->dependencyTree->getAdjacencyList(), true);
@@ -92,7 +93,7 @@ class PhpDependencyTreeBuilder implements BuilderInterface
         }
     }
 
-    private function buildDependenciesForImplicitUse(array $ast): void
+    private function buildDependenciesForImplicitStaticCallUse(array $ast): void
     {
         $namespaces = $this->nodeFinder->findInstanceOf($ast, Node\Stmt\Namespace_::class);
         foreach ($namespaces as $namespace) {
@@ -106,6 +107,27 @@ class PhpDependencyTreeBuilder implements BuilderInterface
                             $namespace->name . '\\' . $class->name->name . '::' . $classMethod->name->name,
                             (!($staticCall->class instanceof Node\Name\FullyQualified) ? $namespace->name . '\\' : '') .
                             $staticCall->class->name . '::' . $staticCall->name->name
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    private function buildDependenciesForImplicitCtorUse(array $ast): void
+    {
+        $namespaces = $this->nodeFinder->findInstanceOf($ast, Node\Stmt\Namespace_::class);
+        foreach ($namespaces as $namespace) {
+            $classes = $this->nodeFinder->findInstanceOf($namespace, Node\Stmt\Class_::class);
+            foreach ($classes as $class) {
+                $classMethods = $this->nodeFinder->findInstanceOf($class, Node\Stmt\ClassMethod::class);
+                foreach ($classMethods as $classMethod) {
+                    $newCalls = $this->nodeFinder->findInstanceOf($classMethod, Node\Expr\New_::class);
+                    foreach ($newCalls as $newCall) {
+                        $this->dependencyTree->addDependency(
+                            $namespace->name . '\\' . $class->name->name . '::' . $classMethod->name->name,
+                            (!($newCall->class instanceof Node\Name\FullyQualified) ? $namespace->name . '\\' : '') .
+                            $newCall->class->name . '::' . '__construct'
                         );
                     }
                 }

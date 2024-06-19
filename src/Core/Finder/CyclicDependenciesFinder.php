@@ -27,7 +27,7 @@ class CyclicDependenciesFinder
     /** @return array<VerbosityLevel, array<string>> */
     public function getMessages(): array
     {
-        return empty($this->messages) ? $this->handleNoDependencies() : $this->messages;
+        return empty($this->hasCyclicDependencies) ? $this->handleNoDependencies() : $this->messages;
     }
 
     private function find(): void
