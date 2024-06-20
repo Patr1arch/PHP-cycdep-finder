@@ -120,6 +120,9 @@ class PhpDependencyTreeBuilder implements BuilderInterface
                     /** @var array<Node\Expr\StaticCall> $staticCalls */
                     $staticCalls = $this->nodeFinder->findInstanceOf($classMethod, Node\Expr\StaticCall::class);
                     foreach ($staticCalls as $staticCall) {
+                        if (!($staticCall->class instanceof Node\Name)) {
+                            continue;
+                        }
                         $this->dependencyTree->addDependency(
                             $namespace->name . '\\' . $class->name->name . '::' . $classMethod->name->name,
                             (!($staticCall->class instanceof Node\Name\FullyQualified) ? $namespace->name . '\\' : '') .
@@ -145,6 +148,8 @@ class PhpDependencyTreeBuilder implements BuilderInterface
                     /** @var array<Node\Expr\New_> $newCalls */
                     $newCalls = $this->nodeFinder->findInstanceOf($classMethod, Node\Expr\New_::class);
                     foreach ($newCalls as $newCall) {
+                        if (!($newCall->class instanceof Node\Name))
+                            continue;
                         $this->dependencyTree->addDependency(
                             $namespace->name . '\\' . $class->name->name . '::' . $classMethod->name->name,
                             (!($newCall->class instanceof Node\Name\FullyQualified) ? $namespace->name . '\\' : '') .
