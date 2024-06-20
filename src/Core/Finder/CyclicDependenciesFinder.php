@@ -72,7 +72,14 @@ class CyclicDependenciesFinder
     private function handleCyclicDependency(DependencyNode $fromNode, DependencyNode $toNode): void
     {
         $this->hasCyclicDependencies = true;
+
+        $cycle = [];
+        $stackCopy = $this->dependencyStack;
+        while (!empty($stackCopy) && ($nodeName = array_pop($stackCopy)) !== $toNode->name) {
+            array_unshift($cycle, $nodeName);
+        }
+
         $this->messages[VerbosityLevel::LEVEL_ONE][] =
-            implode(' -> ', $this->dependencyStack) . " -> $toNode->name!";
+            "$toNode->name -> " . implode(' -> ', $cycle) . " -> $toNode->name!";
     }
 }
