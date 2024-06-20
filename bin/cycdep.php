@@ -6,7 +6,12 @@ use Patriarch\PhpCycdepFinder\Core\Builder\DependencyTreeBuilder;
 use Patriarch\PhpCycdepFinder\Core\Finder\CyclicDependenciesFinder;
 use Patriarch\PhpCycdepFinder\Core\Model\VerbosityLevel;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+foreach ([__DIR__ . '/../../../autoload.php', __DIR__ . '/../vendor/autoload.php'] as $file) {
+    if (file_exists($file)) {
+        require $file;
+        break;
+    }
+}
 
 try {
     $parsedData = parseArgv($argv);
